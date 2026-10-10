@@ -84,6 +84,14 @@
 - Isolation -> Process level isolation - is efficent but not robust like VM 
 - Portabillity -> highly portable and can run consistently across environments 
 
+## Docker Setup and Fundementals 
+- docker --version -> see if installed 
+- docker info -> information on the docker 
+- docker run hello-world -> docker will search for this on your own terminal and if not found will take this out from its own library 
+- docker ps -> shows any existing containers and info related to it 
+
+
+
 
 
 
