@@ -1,36 +1,8 @@
-# Labs
+# Docker Learning 
+- Flask - simple and lightweight framework for creating web applications in Python - perfect for web framework
+- pip3 install flask -> to install flask and its dependencies 
+- mkdir hello_flask -> create another directory 
+- touch app.py -> create application in this directory 
+- Ran a code inside the application to display Hello World! -> python3 app.py 
 
-Document your completed labs here.
-
-## Template
-
-When documenting a lab, include:
-
-```markdown
-# Lab: [Lab Name]
-
-## Objective
-
-What was the goal?
-
-## Commands Used
-
-(the commands you ran)
-
-## Output
-
-(what happened)
-
-## Challenges
-
-Any issues you hit and how you solved them.
-
-## What I Learned
-
-Key takeaways from this lab.
-```
-
-## Completed Labs
-
-- [ ] Add your first lab
 
