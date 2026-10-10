@@ -48,3 +48,45 @@
 
 - Docker file is used to create these images. Contains a series of instructions that docker uses to assemble an image 
 
+#### Importance in Modern Development
+
+1. Simplified deployment -> the biggest challenge with software development is ensuring that applications work consistently across different environments. This problem is solved by docker by creating an consistent environment from development to production. 
+2. Improved efficiency -> Traditional virtual machines can be resource heavy and slow to start. Docker containers are lightweight and shares the Host System's Kernal which allows it to start up almost instantly. 
+3. Enhanced collaboration -> docker allows collaboration with team members. You can just share the docker image with team and everyone is working in the same environment. Onboarding new developers becomes faster and less error prone. 
+- - Docker integrates smoothly with CI/CD pipelines -> allows for automating testing, and deployment of containers. 
+
+#### VMs vs Containers 
+
+1. Virtual Machine 
+- Allows multiple operating systems to run on a single physical machine. 
+- At the base is the infrastucture. On top of that sits the host operating system. Above that is the hypervisor -> which is reponsible for creating and managing virtual machines by allocating resources like CPU, Memory and Storage. 
+- Each virtual machine runs a full guest OS, which is completley isolated from others. 
+- Within the setup of Applications, bin/libr, there is a strong isolationg 
+- This means VM is resource heavy, taking up significant CPU, memory and storage. 
+
+2. Containers 
+- Containers are more lightweight and efficent way to isolate applications. 
+- They share the whole Host operating system, but instead of using a Hypervisor, they run on the Docker engine. 
+- Containers are isolated from each other at the process level but they share the same OS Kernal - making them much lighter than VMs 
+- Containers can start up quickly and can use far lesser resources than VMs 
+
+##### Key differences 
+
+1. Virtual Machine 
+- Startup -> Needs to boot up a full Guest OS -> can take minutes 
+- Resource Usage -> Consume more resources 
+- Isolation -> Strong isolation
+- Portabillity -> Less portable due to size and dependencies on specific Hypervisor
+
+2. Containers 
+- Startup -> share the Host Operating System -> starts within seconds 
+- Resource Usage -> Resource efficent 
+- Isolation -> Process level isolation - is efficent but not robust like VM 
+- Portabillity -> highly portable and can run consistently across environments 
+
+
+
+
+
+
+
