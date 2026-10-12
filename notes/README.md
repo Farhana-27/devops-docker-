@@ -90,6 +90,32 @@
 - docker run hello-world -> docker will search for this on your own terminal and if not found will take this out from its own library 
 - docker ps -> shows any existing containers and info related to it 
 
+#### What is a dockerfile?
+- It is a series of instructions on how to build a docker image 
+- Each instruction is in the docker file creates a layer in the image 
+- Think of it as a recipe for creating your containerisation
+- You are do repeatable builds - meaning you can create the exact same environment every single time 
+
+#### Key comands of docker 
+1. FROM -> specifies the base image to use for the Docker image 
+2. RUN -> executes commands in the container. 
+3. COPY -> copies files from the host machine into the container 
+4. WORKDIR -> sets the working direcotry for subsequent instructions 
+5. CMD -> specifies the command to run when the container starts 
+
+##### Example 
+- Use the official Node.js image as the base image FROM node:14
+- Set the working directory in the container WORKDIR /app 
+- Copy the package.json and package-lock.json files COPY package*.json ./
+- Install dependencies RUN npm install 
+- Copy the rest of the application code COPY ..
+- Expose the application port EXPOSE 3000 
+- Specify the command to run the application CMD ["node", "index.js"]
+
+## Web App Containerisation 
+
+#### Create a simple Web application to Dockerise 
+
 
 
 
