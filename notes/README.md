@@ -112,10 +112,13 @@
 - Expose the application port EXPOSE 3000 
 - Specify the command to run the application CMD ["node", "index.js"]
 
-## Web App Containerisation 
+## Docker Networking 
+#### Basic Networking concepts in Docker 
+- Bridge network -> is the default network mode for containers on the same machine. Containers connected to the bridge network can communicate with each other using their own IP addresses. Isolated from your host machine network, proividing an extra level of security 
+- Host Network -> In host mode, a container uses the host machines network directly without any isolation. Its as if the container is plugged directly into your home network, with no distincton between the container and the host. This mode is useful for applications that need to closley interact with the host system 
+- None Network -> this option gives the container no network interface at all which makes it completley isolated. Its like a room with no doors or windows. 
 
-#### Create a simple Web application to Dockerise 
-
+- Think of containers as small portable apps and networks allow these apps to talk to each other, share data and function as a cohesive system. 
 
 
 
