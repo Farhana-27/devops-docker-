@@ -120,6 +120,41 @@
 
 - Think of containers as small portable apps and networks allow these apps to talk to each other, share data and function as a cohesive system. 
 
+## ADVANCED SECTION 
+#### Containers for scratch 
+- DevOps engineer job is to host applications on AWS, Cloud or any infrastructure 
+- Docker, ECS, EKS are heavy in the industry 
+#### Containers from First Principles
+1. Basics: Where does it start from?
+- You are a DevOps engineer and you are handed a file/zip/repo and you are asked "Hey can you containerise this and deploy it on ECS or Kubernetes?"
+- This is real and happens everyday 
+
+2. First question: How do I run this app normally?
+- Before docker, before containers, before cloud, before base image 
+- We MUST know how the app runs on a normal computer 
+
+The rule:
+- If you don't know how to run it normally 
+- You will never know how to run it inside a container 
+- GOAL -> find the app's entrypoint command 
+
+Examples 
+1. Python -> python app.py 
+2. Node -> node index.js 
+3. Go -> go run app.go 
+4. Jave 
+- - mvn package 
+- - java -jar target/app.jar 
+5. c# -> dotnet run 
+6. PHP -> php -S localhost:8000
+
+- Go, Jave etc. are compound languages. That means when you run that command, that language will create a binary. That binary is litreally your application. If you have that binary, and you put it in the container, it will RUN 
+- Python and Node are NOT compound. It is in pure english but when you run it, it is a heavy applicaton on your laptop, container -> this is because it requires alot of dependencies to run
+
+- Static site: Just open in a browser 
+- Key insight: Every app already has an 'entrypoint' command 
+- Docker does not invent anything - it just runs the same command inside the container 
+
 
 
 
