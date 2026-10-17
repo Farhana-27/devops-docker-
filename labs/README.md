@@ -35,5 +35,9 @@
 
 #### Stop the container 
 - Docker stop container ID
+#### To restart the container 
+- Find the container ID -> docker ps -a (the -a includes stopped containers)
+- Then start it again -> docker start (container ID)
 
+#### Linking Containers together 
 
