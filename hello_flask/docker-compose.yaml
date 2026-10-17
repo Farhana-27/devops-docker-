@@ -1,0 +1,17 @@
+services:
+  web:
+    build: .
+    ports:
+      - "5002:5002"
+    depends_on:
+      mydb:
+        condition: service_healthy
+
+  mydb:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: my-secret-pw
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pmy-secret-pw"]
+      interval: 5s
+      retries: 10
