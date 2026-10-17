@@ -63,3 +63,16 @@ Key notes: When to run a docker build
 
 -> Every time you change app.py, the Dockerfile or your package list. The image is a snapshot, so changes to your files don't reach a container until you rebuild. 
 
+#### Create first 'docker-compose.yml' file 
+
+- This file is the recipe that lists all the ingrediants (services) that your application needs. So instead of launching each application seperatley you write all the instructions in this one file. 
+1. Create the dc yaml file -> ~touch docker-compose.yaml
+2. Inserted the code in this file 
+3. Did ~ docker-compose up and then exited it 
+4. ~ docker-compose up -d -> runs it in the background 
+5. There were errors and I will explain them below 
+- - version: '3.8" -> was removed. Becuase current Docker Compose ignores this line and warns that it's obsolete. Removing it gets rid of the warning -> nothing else changes 
+- - depends_on: db to mydb -> this is the bug that stopped Compose from starting anything 
+- - Added mydb: with condition: service _healthy -> Compose watis until mydb passes its health check before it starts web 
+- -  
+
