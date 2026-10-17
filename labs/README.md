@@ -40,4 +40,26 @@
 - Then start it again -> docker start (container ID)
 
 #### Linking Containers together 
+- I had some issues when I tried to link the containers but for looking back on my notes 
+1. Checked if I had python installed with python3 --version 
+2. Installed ~ pip3 install flask 
+3. Created file ~ touch app.py (did py because I am using python)
+4. Inside the app.py, pasted in code for flask because I am using a web and wanted it to say "Hello World MYSql version 5.7" 
+5. Did ~ python3 app.py -> this is to start the flask app directly on my mac without docker 
+6. Created dockerfile ~ touch Dockerfile 
+7. Docker build turns your project folder into an image. An image is a packaged snapshot of your app containing python. Containers are started from images, so you need to build before you can run
+- - ~ docker buildd -t hello-flask 
+- - ~ docker build -> follows the instructions in your Dockerfile 
+- - ~  -t hello-flask -> gives the image a name (tag) -> without it you would be given a random ID 
+- - ~ . -> means to use the current folder - docker looks for the Dockerfile and the files to copy in 
+8. Created a personal network -> ~ docker network create my-custom-network. You want to see the list of networks -> ~ docker network ls 
+9. To check what the docker is actually reading from the app.py you do -> ~ docker exec myapp cat app.py 
+10. Then I had to rm the container, save the changes and then build the docker again adn then run it again 
+- - docker rm myapp 
+- - docker build -t hello-flask-mysql
+- - docker run docker run -d --name myapp --network my-custom-network -p 5002:5002 hello-flask-mysql
+
+Key notes: When to run a docker build 
+
+-> Every time you change app.py, the Dockerfile or your package list. The image is a snapshot, so changes to your files don't reach a container until you rebuild. 
 
