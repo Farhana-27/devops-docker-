@@ -233,8 +233,6 @@ Kubernetes (K8s):
 - Your role as a DevOps engineer: You’ll be the Kubernetes expert, comfortable running its commands. The upcoming Kubernetes section teaches this in detail.
 - In one line: Orchestration tools keep big apps running, growing and fixing themselves automatically, and automation is a big part of what DevOps is about.
 
-
-
 ## ADVANCED SECTION 
 #### Containers for scratch 
 - DevOps engineer job is to host applications on AWS, Cloud or any infrastructure 
