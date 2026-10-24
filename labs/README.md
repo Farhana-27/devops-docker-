@@ -77,3 +77,15 @@ Key notes: When to run a docker build
 - I also had the myapp and mydb running still from the prev videos so this caused a conflict as it is sharing the same port, so I deleted those. 
 - To stop the Compose, you do Docker compose down 
 
+##### DockerHub 
+1. Log in from VS Code -> docker login 
+2. Create repository on the DockerHub
+3. Links the dockerfile in VS code to the repo made on DockerHub. 
+- docker build -t farhanatasneem/flask-mysql:v1
+- - -t -> means you are tagging 
+- - farhantasneem -> tagging with dockerhub username 
+- - /flask-mysql -> the repo name 
+- - :v1 -> colon the tag, it can be latest or v1 depending on how you want to version your image. 
+- - . -> the dockerfile is in in the current working directory so you just do a dot 
+4. The upload your image -> docker push farhanatasneem/flask-mysql:v1
+5. If you want to pull the image -> docker pull farhanatasneem/flask-msql:v1
