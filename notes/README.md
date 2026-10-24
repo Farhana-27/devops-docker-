@@ -153,6 +153,14 @@
 ##### Amazon ECR (elastic container registry)
 - Is a fully managed docker registry service that is great for storing and managing private docker images 
 
+##### Important Docker Commands 
+- To get a quick overview of the images stored locally -> docker images 
+- More detailed information about an image -> docker inspect (docker ID) 
+- Cleaning up your docker environment. Note if the container is still running, docker will not remove it and you need to stop it and then remove it -> docker rmi (docker ID)
+- Remove all unused docker obejects -> docker system prune -> this removes all stopped containers, all networks is not used by a container, all dangling images and all dangling build cache 
+- To stop a container from running -> docker run (container ID)
+- To remove it completley -> docker run (container ID)
+
 
 ## ADVANCED SECTION 
 #### Containers for scratch 
