@@ -195,6 +195,46 @@ Why learn it:
 
 - In one line: Kubernetes is an automatic manager that runs, scales and fixes huge numbers of containers across many computers, so you can focus on your app.
 
+##### Docker Swarm vs K8s
+Docker Swarm:
+
+- Built into Docker, so it’s easy to set up, especially if you already know Docker commands.
+- Easy to start a cluster. A cluster is just a group of computers working together.
+- No automatic scaling. You add or remove containers yourself, or use extra tools.
+- Has a solid community, but a smaller one than Kubernetes.
+- Can only do what Docker itself supports.
+- - Best for: smaller, simpler projects.
+
+Kubernetes (K8s):
+
+- Originally made by Google, and now the industry standard.
+- Automatic scaling adds or removes containers on its own as the app gets busier or quieter.
+- Has a huge, active community, which means more help, more guides and constant improvements.
+- Harder to set up because you need to understand more of how it works. Ready-made cloud services from AWS, Azure and Google Cloud make this much easier.
+- Isn’t limited to Docker. It works with other container tools too and has more advanced features.
+- Best for: large, complex company apps.
+
+## Docker Swarm vs Kubernetes
+
+| Feature              | Docker Swarm           | Kubernetes           |
+|----------------------|------------------------|----------------------|
+| Ease of setup        | Easy                   | Harder               |
+| Automatic scaling    | No                     | Yes                  |
+| Community            | Good                   | Very large           |
+| Works beyond Docker  | No                     | Yes                  |
+| Best for             | Small, simple projects | Big, complex projects |
+
+##### Why Orchestration tools?
+
+- Why use orchestration tools: Once an app grows to lots of containers on lots of computers, managing them by hand gets too hard. Tools like Kubernetes and Docker Swarm do that work for you automatically.
+- They keep your app running (high availability): They watch your containers all the time. If one breaks, they restart it or move it to another computer, with no human needed. This is also called self-healing.
+- They scale automatically: They add containers when lots of people use the app and remove them when it’s quiet. That keeps the app fast and saves money.
+- They save you effort: Lots of manual jobs get automated, so developers can spend their time improving the app instead of managing computers.
+- Your role as a DevOps engineer: You’ll be the Kubernetes expert, comfortable running its commands. The upcoming Kubernetes section teaches this in detail.
+- In one line: Orchestration tools keep big apps running, growing and fixing themselves automatically, and automation is a big part of what DevOps is about.
+
+
+
 ## ADVANCED SECTION 
 #### Containers for scratch 
 - DevOps engineer job is to host applications on AWS, Cloud or any infrastructure 
