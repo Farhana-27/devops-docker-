@@ -89,3 +89,22 @@ Key notes: When to run a docker build
 - - . -> the dockerfile is in in the current working directory so you just do a dot 
 4. The upload your image -> docker push farhanatasneem/flask-mysql:v1
 5. If you want to pull the image -> docker pull farhanatasneem/flask-msql:v1
+
+##### Using image from our ECR repo 
+- Have not gotten the Mysql database running 
+- Creates mydb mysql database -> docker run -d --name mydb -e MYSQL_ROOT_PASSWORD=my-secret-pw mysql:8
+- Rerun the command to create our flask mysql image using the image we pulled down from the ECR repo. 
+- There was an error: mysql database and the flask application are not on the same network - saying 'unknown serverhost mydb'. -> the containers are unable to interact with each other 
+1. create the network from before -> docker network create my-app-network
+2. Deletes the mydb container 
+3. Runs the container again but specifying the network that has been created -> ocker run -d --name mydb --network my-app-network -e MYSQL_ROOT_PASSWORD=my-secret-pw mysql:8
+4. Then run the same container before and specify the network here also -> docker run -p 5002:5002 --network my-app-network 182715287561.dkr.ecr.eu-north-1.amazonaws.com/flask-mysql:latest 
+
+-> Another way to do this would be in docker compose file 
+- How do you achieve the same thing but using the image we pulled from ECR 
+1. Go to the docker compose file, instead of the build which is under services, replace with image and paste in the ECR repo -> 182715287561.dkr.ecr.eu-north-1.amazonaws.com/flask-mysql:latest
+2. change the depends on to mydb 
+3. make sure you are logged into the ECR before running any commands 
+4. command to create our services within the docker compose file is -> docker-compose up
+
+
