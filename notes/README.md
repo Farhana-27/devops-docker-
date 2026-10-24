@@ -160,7 +160,11 @@
 - Remove all unused docker obejects -> docker system prune -> this removes all stopped containers, all networks is not used by a container, all dangling images and all dangling build cache 
 - To stop a container from running -> docker run (container ID)
 - To remove it completley -> docker run (container ID)
-
+##### Making out image lighter: Multistage builds!
+- The Docker image created is quite large - large images can slow down your deployments - consumes more bandwidth and uses up your storage 
+- Optimise the docker file using multistage builds -> this allows you to use multiple FROM statements in the docker file. 
+- aim is to use one stage to build your application and the other, much lighter stage to create the final image that you deploy -> allows you to discard unnessecary dependencies. 
+- smaller images quicker to pull from a registry, faster to deploy and take up less disk space. 
 
 ## ADVANCED SECTION 
 #### Containers for scratch 
