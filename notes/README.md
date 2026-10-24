@@ -166,6 +166,35 @@
 - aim is to use one stage to build your application and the other, much lighter stage to create the final image that you deploy -> allows you to discard unnessecary dependencies. 
 - smaller images quicker to pull from a registry, faster to deploy and take up less disk space. 
 
+##### Orchestration Tools 
+- What we’ve learned so far: We’ve covered the Docker basics, which means building apps into containers, making the images smaller and getting them running.
+- The next problem: Big real-world apps can have hundreds or even thousands of containers. Starting and looking after each one by hand gets too hard, and even Docker Compose can’t keep up at that size.
+- The answer is “container orchestration”: Special tools manage lots of containers for you automatically. They start containers, add more when the app gets busy and replace ones that break.
+- The two tools covered:
+- - Kubernetes: the most popular orchestration tool. It gets its own full module later.
+- - Docker Swarm: Docker’s own, simpler tool, which this section compares with Kubernetes.
+- When you need it: The section also explains how to tell when these tools stop being nice to have and become a must.
+- Why it matters for your career: Orchestration is a core skill for jobs like DevOps engineer, site reliability engineer (SRE) and cloud engineer.
+- In one line: Docker runs containers, and orchestration tools like Kubernetes manage huge numbers of them for you.
+
+##### Kubernetes 
+
+- The problem: Docker works well for a few containers on one computer. But real companies may need to run hundreds or thousands of containers spread across many computers. Doing that by hand is slow and easy to get wrong.
+- What Kubernetes is: A free, open-source tool that runs and manages containers for you automatically. People often shorten it to K8s, with the 8 standing for the eight letters between the “K” and the “s”.
+
+Think of it as a manager for your containers. It:
+- Deploys them, making sure each container starts up correctly.
+- Scales them, adding more containers when the app gets busy and removing them when it’s quiet.
+- Self-heals, so if a container crashes, it replaces it on its own.
+- It hides the messy details. You don’t have to think about which computer each container runs on. You just focus on your app.
+- The big cloud companies offer it too. AWS, Google Cloud and Azure each have their own ready-made Kubernetes service, so developers can spend their time writing code instead of managing containers.
+
+Why learn it:
+- Most modern companies build apps as lots of small pieces (called microservices) that run in the cloud, and Kubernetes is the standard way to run them.
+- Kubernetes takes some effort to learn, so people who know it well are in demand. That’s where DevOps engineers come in.
+
+- In one line: Kubernetes is an automatic manager that runs, scales and fixes huge numbers of containers across many computers, so you can focus on your app.
+
 ## ADVANCED SECTION 
 #### Containers for scratch 
 - DevOps engineer job is to host applications on AWS, Cloud or any infrastructure 
