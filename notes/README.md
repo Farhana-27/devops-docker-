@@ -143,6 +143,14 @@
 - Enhances Collaboration -> when your images are stored, everyone on your team has access to the same resources making it easier to share and manage images. 
 - Ensures conistency -> you can make sure that the exact same image is being used in development, testing and production. Means what you have tested locally is exactly what runs in production. 
 
+##### DockerHub: A popular Docker Registry 
+- A public registry where you can store, share and access docker image. 
+- Its like the app store for docker images 
+1. Accessibilty -> you can easily pull images to start your projects 
+2. Hosts a large collection of community contributed images 
+3. Free tier -> you can use it for free 
+
+
 
 ## ADVANCED SECTION 
 #### Containers for scratch 
