@@ -107,4 +107,12 @@ Key notes: When to run a docker build
 3. make sure you are logged into the ECR before running any commands 
 4. command to create our services within the docker compose file is -> docker-compose up
 
+##### Multistage - making the image lighter 
+- The problem: The original Docker image for the Flask + MySQL app was 471 MB. The build tools needed to compile the MySQL client (GCC, Python dev libraries, MariaDB dev) all stayed in the final image, even though they’re only needed during the build.
+- The fix, multistage builds: The Dockerfile was rewritten with two FROM statements, so the build tools stay in the first stage and don’t end up in the final image.
+- - Stage 1 (build): Starts FROM python:3.8-slim AS build, sets /app as the work directory, installs the dependencies, copies in the app code and runs pip install.
+- - Stage 2 (production): Starts fresh from python:3.8-slim, copies only the finished app from the build stage with COPY --from=build /app, exposes port 5002 and runs python app.py.
+- The result: The new image, tagged my-flask-app:multistage, came out at 151 MB, about a third of the original size. Smaller images pull, deploy and store faster.
+- Testing: The Docker Compose file was changed to use the new image, and the app was started with docker compose up to check that it still works.
+- Why it matters: Shrinking an oversized image comes up a lot at work, and multistage builds are a common interview question.
 
