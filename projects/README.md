@@ -418,3 +418,8 @@ Rebuild: `docker compose up -d --build`.
 - **Environment variable:** a setting passed to the app from outside. You can change the Redis address without editing any code.
 - **Load balancer (nginx):** a receptionist who sends each visitor to whichever Flask copy is available.
 - **Why the count stays correct when scaled:** every Flask copy talks to the **same** Redis, so they all share one counter.
+
+The bonus bit:
+- Persistent storage ✅ keeps the count after a restart. Test it with docker compose down, then HOST_PORT=5002 docker compose up -d, and check that the count carries on.
+- Environment variables ✅ give the app the Redis address from docker-compose.yml instead of from the code. This already works, because /count couldn’t find Redis without them.
+- Scaling ⏳ runs several copies of the app. Start 3 with HOST_PORT=5002 docker compose up -d --scale web=3, then run the curl loop and watch the container ID change while the count keeps going up.
