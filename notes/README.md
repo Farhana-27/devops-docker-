@@ -150,6 +150,8 @@
 2. Hosts a large collection of community contributed images 
 3. Free tier -> you can use it for free 
 
+##### Amazon ECR (elastic container registry)
+- Is a fully managed docker registry service that is great for storing and managing private docker images 
 
 
 ## ADVANCED SECTION 
