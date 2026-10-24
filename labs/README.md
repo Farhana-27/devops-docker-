@@ -73,6 +73,7 @@ Key notes: When to run a docker build
 5. There were errors and I will explain them below 
 - - version: '3.8" -> was removed. Becuase current Docker Compose ignores this line and warns that it's obsolete. Removing it gets rid of the warning -> nothing else changes 
 - - depends_on: db to mydb -> this is the bug that stopped Compose from starting anything 
-- - Added mydb: with condition: service _healthy -> Compose watis until mydb passes its health check before it starts web 
-- -  
+- - Added mydb: with condition: service _healthy -> Compose waits until mydb passes its health check before it starts web. When I did only -mydb (a simple list) -> Compose started mydb and them immediatley starts web, eventhough the MySQL needed about 30 secs before it accepts connection. If the app tries to connect too early, this is what causes the Internal Server Error 
+- I also had the myapp and mydb running still from the prev videos so this caused a conflict as it is sharing the same port, so I deleted those. 
+- To stop the Compose, you do Docker compose down 
 

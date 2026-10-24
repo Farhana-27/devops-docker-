@@ -120,6 +120,30 @@
 
 - Think of containers as small portable apps and networks allow these apps to talk to each other, share data and function as a cohesive system. 
 
+#### Docker Compose 
+- Docker Compose helps you run multiple Docker containers together 
+- Key features 
+- - Docker-compose.yml file 
+- - Commands 
+- - Networking 
+
+##### Importance in DevOps 
+- Makes development and testing easier 
+- Ensures consistency 
+- Enhances Teamwork 
+
+#### Docker Registries
+- Docker Registry is a system for storing and sharing Docker images 
+- Key features 
+-  - Private registries 
+-  - Public registries 
+
+##### Importance of Docker Registries in DevOps 
+- Steamline Deployment -> once your docker images is stored in a registry it cna be easily accessed and deployed across multiple environments, fro development all the way to production. Makes it faster and more reliable to roll out new features or updates 
+- Enhances Collaboration -> when your images are stored, everyone on your team has access to the same resources making it easier to share and manage images. 
+- Ensures conistency -> you can make sure that the exact same image is being used in development, testing and production. Means what you have tested locally is exactly what runs in production. 
+
+
 ## ADVANCED SECTION 
 #### Containers for scratch 
 - DevOps engineer job is to host applications on AWS, Cloud or any infrastructure 
