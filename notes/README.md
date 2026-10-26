@@ -234,41 +234,52 @@ Kubernetes (K8s):
 - In one line: Orchestration tools keep big apps running, growing and fixing themselves automatically, and automation is a big part of what DevOps is about.
 
 ## ADVANCED SECTION 
-#### Containers for scratch 
-- DevOps engineer job is to host applications on AWS, Cloud or any infrastructure 
-- Docker, ECS, EKS are heavy in the industry 
-#### Containers from First Principles
-1. Basics: Where does it start from?
-- You are a DevOps engineer and you are handed a file/zip/repo and you are asked "Hey can you containerise this and deploy it on ECS or Kubernetes?"
-- This is real and happens everyday 
 
-2. First question: How do I run this app normally?
-- Before docker, before containers, before cloud, before base image 
-- We MUST know how the app runs on a normal computer 
+## Containers from First Principles (ECS Accelerator, Session 1)
+- **What the series is for**
+  - It's a run of about 8–10 weekly sessions to help with the **ECS project**. It covers the steps in order: get the app → Dockerise it → Terraform → ECS/EKS.
+  - **Why Docker, ECS and EKS:** containers on ECS and on Kubernetes (EKS) are the most in-demand skills in industry right now. EC2s (virtual machines in AWS) and on-prem servers (a company's own machines) are still used, and serverless is a possible future roadmap.
+  - **The DevOps / platform engineer's job:** host applications on the cloud (AWS) and look after the infrastructure. Docker is just one tool for that.
 
-The rule:
-- If you don't know how to run it normally 
-- You will never know how to run it inside a container 
-- GOAL -> find the app's entrypoint command 
+- **The real-world scenario**
+  - At work, a developer hands you a folder, a zip or a repository and says: **"Containerise this so I can deploy it to the cloud"** (ECS, Kubernetes and so on). This happens all the time.
+  - **The first question to ask, before writing any Dockerfile:** *"How do I run this app normally, without Docker?"*
 
-Examples 
-1. Python -> python app.py 
-2. Node -> node index.js 
-3. Go -> go run app.go 
-4. Jave 
-- - mvn package 
-- - java -jar target/app.jar 
-5. c# -> dotnet run 
-6. PHP -> php -S localhost:8000
+- **The golden rule: find the app's entry point**
+  - **If you can't run an app on your own computer, you can't run it in a container.**
+  - The **entry point** is the command that starts the app. An app may have many APIs, but none of them work until the app is started.
+  - **Where to find it:** the project's **README** usually lists the run commands. If it doesn't, check which language the app uses (GitHub shows this on the repo page) and look up how apps in that language are started.
+  - **Common entry point commands:**
 
-- Go, Jave etc. are compound languages. That means when you run that command, that language will create a binary. That binary is litreally your application. If you have that binary, and you put it in the container, it will RUN 
-- Python and Node are NOT compound. It is in pure english but when you run it, it is a heavy applicaton on your laptop, container -> this is because it requires alot of dependencies to run
+    | Language | Command to run the app |
+    |---|---|
+    | Python | `python app.py` or `python3 app.py` |
+    | Node (JavaScript) | `node index.js` |
+    | Go | `go run` |
 
-- Static site: Just open in a browser 
-- Key insight: Every app already has an 'entrypoint' command 
-- Docker does not invent anything - it just runs the same command inside the container 
+- **Compiled vs. non-compiled languages** (useful later for writing Dockerfiles)
+  - **Compiled (Go, Java, C#):** building the app turns it into a single **binary** file, and that binary *is* the app. You can put just the binary into a container, which makes the container **lighter**. The code is harder for people to read.
+  - **Not compiled (Python, Node):** the code is easy to read, almost like English. But running it needs **lots of hidden dependencies**, so the app and its container are **heavier**.
 
+- **How the entry point links to Docker**
+  - A Dockerfile uses the same idea, with the instructions **`CMD`** or **`ENTRYPOINT`**. The differences between them come in a later session.
+  - You use **the same command you'd run on your computer**, but it runs inside the container. For example, `CMD ["python", "app.py"]`.
 
+- **What a container is (a common interview question: containers vs. VMs)**
+  - A **VM (virtual machine)** is a whole, heavy computer with its own full operating system. Using a whole VM for one app wastes a lot of resources.
+  - A **container** is a **small, lightweight box inside a computer**. One VM, or your laptop, can run **many containers**, but a container can't hold VMs.
+  - **House analogy:** the VM is the **house** and each container is a **room**. Every room has its own files, network and app, separate (**isolated**) from the other rooms.
+  - **Why it's useful:** once a container works and you've tested it, it will usually run the same on **any other computer**, ECS machine or EKS cluster.
+  - **Why containers exist:** to keep things **light, with no wasted space**. They're built on an older Linux feature called **namespaces**, which keeps processes isolated from each other.
+
+- **How containers are made (the chain to remember)**
+
+  ```
+  Dockerfile  →  builds an  →  Image  →  runs as a  →  Container
+  ```
+
+  - To get a **container**, you need an **image**.
+  - To get an **image**, you need a **Dockerfile**.
 
 
 
