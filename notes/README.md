@@ -281,6 +281,85 @@ Kubernetes (K8s):
   - To get a **container**, you need an **image**.
   - To get an **image**, you need a **Dockerfile**.
 
+  ## Base Images, Image Types & Dockerfile Instructions (ECS Accelerator, Session 1, part 2)
+
+- **The 4 things every container needs to work**
+  - If a Dockerfile has these 4 things, the container will almost always work. Everything else is an extra that improves things, like security settings or adding a user.
+    1. **A base image** (`FROM`): the environment the app needs, such as Python, Node or Go.
+    2. **The dependencies** (`COPY` the dependency file + `RUN` the install): the libraries the app needs.
+    3. **The application code** (`COPY`): the app itself.
+    4. **The start command** (`CMD` / `ENTRYPOINT`): how the container runs the app.
+  - **Think backwards:** first work out what language the app uses and how it runs locally. That tells you which base image to choose.
+
+- **Choosing a base image**
+  - Use a **language-specific image** that matches the app, for example `python:3.12-slim`, `node:20` or `golang`. Seeing `FROM golang` usually means it's a Go app.
+  - **Avoid full operating-system images** like `ubuntu` or `centos`. They contain a whole OS, which makes the image heavy and is rarely needed.
+  - Base images are built by other people, often open source, from their own Dockerfiles. Many are a lighter version of Ubuntu or Debian with the language added on top.
+  - **How an image name is read:** `name:version-type`. For example, `python:3.12-slim` means Python, version 3.12, slim type.
+
+- **Image types, from biggest to smallest**
+
+  | Type | Example | What's inside | Good | Bad |
+  |---|---|---|---|---|
+  | **Full** | `python:3.12` | A full system with all tools and compilers | Easy, everything usually works | Heavy, slow, less secure, lots of bloat |
+  | **Slim** | `python:3.12-slim` | A minimal OS, just enough to run the app | Much smaller, and the usual choice for Python | Sometimes too minimal, so the app may be missing a system library it needs |
+  | **Alpine** | `node:20-alpine` | A tiny Linux with basic tools | Very small, and works well for Go and Node | Uses a different core library (**musl** instead of **glibc**), which can break Python packages |
+  | **Distroless** | Google's distroless images | Only the app and what it needs. **No shell, no package manager** | Very secure | Hard to debug, because you can't `docker exec` into it |
+  | **Scratch** | `scratch` | **Completely empty**: no shell, no files | Tiny. A Go app can be about 5–10 MB | Only works for **compiled** languages (Go, Rust, C). **Not** for Python or Node |
+
+  - **Why scratch works for compiled languages:** Go, Rust and C build the app into one **binary** file. The container only has to run that file, for example `./server`, so it needs nothing else.
+  - **There's a limit to shrinking:** Python and Node are heavy languages by nature, so their images can only get so small.
+  - **Everything is a trade-off:** big companies often choose light languages like Go and Rust to save money, but those are harder to learn. Python is easy to read but heavier.
+
+- **The Python example Dockerfile, step by step**
+  - **Locally,** you'd install the requirements (`pip install -r requirements.txt`) and then run `python app.py`. **The Dockerfile repeats exactly those steps.**
+  - `requirements.txt` lists the app's libraries, such as `Flask`. Every language has its own dependency file.
+  - **`WORKDIR /app`:** sets the folder inside the container where the app lives. It's **optional**, because without it everything goes in the root folder `/`, which works but is messy. It's good practice to set it.
+  - **`COPY requirements.txt .` → `RUN pip install --no-cache-dir -r requirements.txt` → `COPY . .`**
+    - Without copying `requirements.txt`, the dependencies can't be installed.
+    - `--no-cache-dir` stops pip from keeping downloaded files, which makes the image smaller.
+    - **Copy the dependency file first, then the code.** This is for **layer caching**: if only the code changes, Docker reuses the saved install step, so rebuilds are much faster.
+  - **`COPY . .` copies everything,** which isn't ideal. Use a **`.dockerignore`** file to leave out things you don't need, like the `venv` folder.
+
+- **`EXPOSE`**
+  - It's **for documentation only.** The app still works if you remove it.
+  - It tells other people which port the app uses. For example, on ECS you need to know which port to open.
+  - The port is actually opened when you **run** the container, for example `docker run -p 5000:5000`, not in the Dockerfile.
+
+- **The start command depends on the language**
+  - Python: `CMD ["python", "app.py"]`. Node: `CMD ["node", "index.js"]`.
+  - Go and other compiled languages: build the binary, then run it with `./server`. The Go example uses a **multistage build**: stage 1 builds the binary, and stage 2 copies only the binary and runs it.
+  - **It's the same command you'd run on your own computer. There's nothing magic about it.**
+
+- **Similar instructions and how they differ (common interview question)**
+
+  | Instruction | When it runs | Key point |
+  |---|---|---|
+  | **`RUN`** | While **building** the image | Installs things, changes permissions and so on |
+  | **`CMD`** | When the **container starts** | The **default** command. **It can be overridden** on the command line |
+  | **`ENTRYPOINT`** | When the **container starts** | **Always runs**, so it's "set in stone". Choose it carefully |
+  | **`COPY`** | While building | Copies files from your project into the image. **Predictable**, so it's preferred |
+  | **`ADD`** | While building | Like `COPY`, but it can also **download from URLs** and **unpack archives** like zip or tar files. It's rarely used, because a URL can change, which makes builds unpredictable |
+
+  - **Goal:** containers should be **deterministic**, meaning they build the same way every time. That's why `COPY` is preferred over `ADD`.
+
+- **The rough Dockerfile template**
+
+  ```dockerfile
+  FROM <language>:<version>-<type>    # 1. Base image (slim, alpine, distroless, scratch)
+  WORKDIR /app                        #    Optional but good practice
+  COPY <dependency file> .            # 2. Dependencies (these two lines go together)
+  RUN <install command>
+  COPY . .                            # 3. The application code
+  EXPOSE <port>                       #    Optional, for documentation
+  CMD ["<runtime>", "<file>"]         # 4. Start command (CMD or ENTRYPOINT)
+  ```
+
+- **Layers**
+  - **Every instruction (line) in a Dockerfile creates a layer**, and layers add to the image size.
+  - **Keep the number of layers small.** For example, combine several Linux commands into **one `RUN`** using `&&` instead of writing five separate `RUN` lines.
+  - Run `docker history <image>` to see each layer and how big it is.
+
 
 
 
