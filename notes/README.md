@@ -360,6 +360,247 @@ Kubernetes (K8s):
   - **Keep the number of layers small.** For example, combine several Linux commands into **one `RUN`** using `&&` instead of writing five separate `RUN` lines.
   - Run `docker history <image>` to see each layer and how big it is.
 
+  # Docker Session Notes: Examples, Debugging & Q&A
+
+
+
+## 1. Image sizes: base image choice matters
+
+| Image | Size (approx.) | Why |
+|---|---|---|
+| Python basic (`python:3.12`, full) | ~1.65 GB | Full OS + build tools |
+| Python slim (`python:3.12-slim`) | ~630 MB | Stripped-down Debian |
+| Python distroless + multistage | ~103 MB | Only the runtime + the app |
+| Java (full JDK image) | ~300 MB | Not using a slim/JRE-only base |
+| C# | ~350 MB | |
+| Go multistage (distroless) | ~60 MB | Builder stage thrown away |
+| Go `scratch` | ~10 MB | Empty image + compiled binary only |
+
+**Why Go can use `scratch` but Python can't:** Go compiles to a single static binary that needs nothing else.
+Python needs an interpreter and libraries at runtime, so it needs a base image that has Python in it.
+
+**Image types, biggest to smallest:**
+- **Full** (`python:3.12`): everything included. Easiest, but huge.
+- **Slim** (`python:3.12-slim`): a minimal Debian. A good default starting point.
+- **Alpine** (`python:3.12-alpine`): very small, but uses `musl` instead of `glibc`, so some packages break or need compiling.
+- **Distroless**: only the language runtime. No shell, no package manager.
+- **Scratch**: completely empty. Only works for static binaries (Go, Rust).
+
+---
+
+## 2. Multistage builds
+
+- **Stage 1 (`AS builder`)** is a temporary helper container that installs dependencies and compiles/builds the app.
+- **Stage 2 (final)** uses `COPY --from=builder` to bring in **only** what's needed to run. Everything else is thrown away.
+- You can have 3–4 stages if needed. **Only the last stage ships.**
+
+```dockerfile
+# ---- Stage 1: build ----
+FROM python:3.12-slim AS builder
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --target=/app/deps -r requirements.txt
+COPY . .
+
+# ---- Stage 2: run ----
+FROM gcr.io/distroless/python3
+WORKDIR /app
+COPY --from=builder /app /app
+ENV PYTHONPATH=/app/deps
+CMD ["app.py"]
+```
+
+**"How do I know what to copy out of the builder?"**
+You know the `WORKDIR` (e.g. `/app`) and what you copied into it, so you copy that path.
+Some details, like setting `PYTHONPATH` so Python finds the installed packages, you only discover by debugging.
+
+**Frontend pattern (React/Vue):**
+- Stage 1: Node builds the app, producing `index.html` plus JS/CSS in `dist/` or `build/`.
+- Stage 2: **nginx** serves those static files. Much lighter than shipping Node.
+
+```dockerfile
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
+COPY . .
+RUN yarn build
+
+FROM nginx:alpine
+COPY --from=builder /app/build /usr/share/nginx/html
+EXPOSE 80
+```
+
+**Simple scripts:** a container can run anything. One example was just `alpine` running a bash script that prints hello.
+
+---
+
+## 3. Layer caching (order matters)
+
+- Each instruction adds a layer. If a layer hasn't changed, Docker **reuses it from cache**.
+- Once one layer changes, **every layer after it is rebuilt.**
+- **Trick:** copy the dependency file first, install, *then* copy the source code:
+
+```dockerfile
+COPY requirements.txt .              # or package.json / yarn.lock
+RUN pip install -r requirements.txt  # cached unless requirements.txt changes
+COPY . .                             # code changes don't re-trigger the install
+```
+
+- Put things that rarely change at the top and things that change often at the bottom.
+- `COPY . .` early in the file defeats caching, because any code change forces dependencies to reinstall.
+
+> **Correction:** not *every* line creates a filesystem layer. Only `RUN`, `COPY` and `ADD` do.
+> `ENV`, `EXPOSE`, `CMD`, `WORKDIR` etc. only add metadata.
+
+---
+
+## 4. Build then run
+
+```bash
+docker build -t python-slim .     # 1. build the image (-t = name/tag, . = folder with the Dockerfile)
+docker run -p 5001:5000 python-slim   # 2. run a container from it
+```
+
+You can't run without building first. No image, no container.
+
+### Ports: `-p HOST:CONTAINER`
+
+```
+docker run -p 5001:5000 my-app
+              │    │
+              │    └── CONTAINER port: must match the port the app listens on
+              └─────── HOST port: any free port on your machine → http://localhost:5001
+```
+
+- **Right number (container)** must match what the app opens (e.g. Flask on 5000, the demo app on 9000).
+- **Left number (host)** can be anything free. That's why the same app ran on 5001 and 5002 side by side.
+- The app must listen on `0.0.0.0` inside the container, not `127.0.0.1`, or the port mapping can't reach it.
+
+### `EXPOSE`
+- `EXPOSE` documents the **container (right-hand) port**.
+- It's **documentation only.** The demo proved the app still works with `EXPOSE` commented out.
+- It's still worth having: it tells teammates and ECS task definitions which port to map, without digging through the code.
+
+
+
+---
+
+## 5. Experiments from the session
+
+| Experiment | Result | Why |
+|---|---|---|
+| Comment out `EXPOSE` | App still works | `EXPOSE` is documentation only |
+| Rebuild with no changes | Finished in ~0s | Every layer came from cache |
+| Comment out `CMD` | Builds fine, container **exits immediately** | No proper start command, see below |
+
+**Why the container exited without `CMD`:** it fell back to the base image's default command (`python3`, an interactive shell).
+With no terminal attached, that shell exits straight away. **A container only lives as long as its main process.**
+
+### `RUN` vs `CMD` vs `ENTRYPOINT`
+
+| | When it runs | Overridable? |
+|---|---|---|
+| `RUN` | **Build** time (installs things into the image) | n/a |
+| `CMD` | **Container start**, the default command | Yes: `docker run my-app <other command>` |
+| `ENTRYPOINT` | **Container start**, always runs | Only with `docker run --entrypoint ...` |
+
+
+## 6. The Dockerfile checklist (for any new app)
+
+1. **How do I run this locally?** Forget Docker. Get it running first. That command becomes your `CMD`.
+2. **What language is it?** That's your base image (Python → `python`, Node → `node`, Go → `golang`).
+3. **What are the dependencies?** `requirements.txt`, `package.json`, `go.mod`, `pom.xml`...
+4. **Where does it live?** `WORKDIR` (optional, but good practice).
+
+**The four Lego blocks:** base image → copy dependencies → install them → start command.
+Everything else (multistage, caching, `.dockerignore`, security) is added on top.
+
+**Order of work:** ① make it work → ② optimise size → ③ harden security.
+
+---
+
+## 7. Q&A takeaways
+
+### "Given a big unfamiliar repo, how do I figure out what it needs?"
+- **Look at file extensions** to find the language: `.vue`/`.js`/`.jsx` → JavaScript, `.py` → Python, `.go` → Go.
+- **Find the dependency file:** `package.json`, `requirements.txt`, `go.mod`.
+- **Find the entry point:** `main.py`, `app.py`, `index.js`, or the `"scripts"` section in `package.json`.
+- **Read the README.** It usually says how to run the app.
+- **Check for an existing Dockerfile.** If there is one, read it and understand it.
+- Use **`.dockerignore`** to exclude what you don't need (`node_modules`, `.git`, `.venv`, tests).
+
+Language reference:
+
+| Language | Dependency file | Typical entry point / run command |
+|---|---|---|
+| Python | `requirements.txt` | `python main.py` / `python app.py` |
+| Node (backend) | `package.json` | `node index.js` / `npm start` |
+| Node (frontend) | `package.json` | `npm run build` → serve `build/` or `dist/` with nginx |
+| Go | `go.mod` | `go build` → run the binary |
+| Static site | none | `index.html` served by nginx |
+
+### "npm vs yarn vs serve?"
+- **npm** and **yarn** are both Node package managers. They do the same job.
+- **Check the lockfile:** `yarn.lock` → use yarn, `package-lock.json` → use npm.
+- **`serve`** is a tiny static file server for built frontend files. nginx does the same job in production.
+- **Threat Composer** uses **yarn** for install, build and run.
+
+### ECS project advice
+- **Threat Composer** is the easier route. Others have done it, so there's help available.
+- Pick a different app if you want the challenge.
+- If your own app uses a similar stack to Threat Composer (React/Node), stick with it.
+- Try to figure problems out yourself first (docs, GPT), then ask.
+
+### "Slim, full or distroless? How do I choose?"
+- Look at what the app actually needs. Flask alone doesn't need a 1.6 GB image.
+- **Start with slim.**
+  - Breaks because something is missing? Go **one size up**.
+  - Works? Try **one size smaller** (distroless).
+- Experiment locally and compare sizes with `docker images`.
+- Python has a floor (it always needs the interpreter). Go can go all the way down to `scratch`.
+
+### "App works locally but shows no data on ECS Fargate (Mac user)"
+Apple Silicon Macs build **ARM64** images by default. Fargate defaults to **x86_64 / AMD64**.
+
+Fix, option 1: build for AMD64:
+```bash
+docker build --platform linux/amd64 -t myapp .
+```
+
+Fix, option 2: tell ECS to use ARM in the task definition:
+```json
+"runtimePlatform": { "cpuArchitecture": "ARM64", "operatingSystemFamily": "LINUX" }
+```
+
+Also check:
+- **Environment variables** are set in the task definition.
+- **API URL:** frontends often have the API URL **baked in at build time**, so `localhost` won't work in the cloud.
+- **Security groups** allow traffic between the services.
+- **CloudWatch logs** for the task.
+
+### "Why are Go, Rust or Java 'faster' than Python?"
+- **Compiled languages** (C, Rust, Go, C#) are turned into machine code ahead of time. They're closer to the hardware: faster, and they use less memory and energy, but they're harder to write.
+- **Interpreted languages** (Python, JavaScript) are translated while running. That's more overhead, but they're easier to write.
+- At large scale (AWS-size), that difference costs real money and electricity.
+- The chart shown was from a "programming language energy efficiency" study.
+
+---
+
+## Quick command reference
+
+```bash
+docker build -t <name> .                     # build an image from the Dockerfile in this folder
+docker build --platform linux/amd64 -t <name> .   # build for ECS/x86 from an Apple Silicon Mac
+docker images                                # list images and their sizes
+docker run -p <host>:<container> <name>      # run a container with port mapping
+docker run -d -p 5001:5000 <name>            # same, in the background (detached)
+docker ps                                    # list running containers
+docker ps -a                                 # list all containers, including exited ones
+docker logs <container>                      # see a container's output (works on exited ones too)
+docker stop <container>                      # stop a running container
+```
+
 
 
 
